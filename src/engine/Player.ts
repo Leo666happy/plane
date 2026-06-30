@@ -38,16 +38,29 @@ export function updatePlayer(
   // Movement
   let dx = 0
   let dy = 0
-  if (input.isPressed('ArrowLeft') || input.isPressed('a')) dx -= 1
-  if (input.isPressed('ArrowRight') || input.isPressed('d')) dx += 1
-  if (input.isPressed('ArrowUp') || input.isPressed('w')) dy -= 1
-  if (input.isPressed('ArrowDown') || input.isPressed('s')) dy += 1
+
+  if (input.isTouching) {
+    // Touch control: plane follows finger horizontally,
+    // stays above finger vertically so finger doesn't cover the plane
+    const targetX = input.touchX
+    const targetY = input.touchY - 100 // offset above finger
+    const lerpSpeed = 8 // smooth follow
+
+    dx = (targetX - player.x) * lerpSpeed / player.speed
+    dy = (targetY - player.y) * lerpSpeed / player.speed
+  } else {
+    // Keyboard control
+    if (input.isPressed('ArrowLeft') || input.isPressed('a')) dx -= 1
+    if (input.isPressed('ArrowRight') || input.isPressed('d')) dx += 1
+    if (input.isPressed('ArrowUp') || input.isPressed('w')) dy -= 1
+    if (input.isPressed('ArrowDown') || input.isPressed('s')) dy += 1
+  }
 
   // Normalize diagonal movement
   if (dx !== 0 && dy !== 0) {
-    const inv = 1 / Math.SQRT2
-    dx *= inv
-    dy *= inv
+    const len = Math.sqrt(dx * dx + dy * dy)
+    dx /= len
+    dy /= len
   }
 
   player.x += dx * player.speed * dt

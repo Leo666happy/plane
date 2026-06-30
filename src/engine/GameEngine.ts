@@ -72,7 +72,7 @@ export class GameEngine {
     this.ctx.scale(this.dpr, this.dpr)
 
     // Initialize subsystems
-    this.input = new InputManager()
+    this.input = new InputManager(canvas)
     this.renderer = new Renderer(this.ctx)
     this.background = new BackgroundManager(this.canvasWidth, this.canvasHeight)
     this.particles = new ParticleSystem(500)
