@@ -125,6 +125,9 @@ export class GameEngine {
 
   // === Update ===
   private update(dt: number): void {
+    // 0. Smooth touch input (low-pass filter sensor noise)
+    this.input.updateTouchFilter()
+
     // 1. Update player
     updatePlayer(this.player, dt, this.input, this.playerBullets, this.canvasWidth, this.canvasHeight)
 

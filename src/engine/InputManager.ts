@@ -1,10 +1,13 @@
 export class InputManager {
   private keys: Set<string> = new Set()
 
-  // Touch state
+  // Touch state (EMA-smoothed to eliminate sensor noise)
   private _touchX: number = 0
   private _touchY: number = 0
   private _isTouching: boolean = false
+  private _rawTouchX: number = 0
+  private _rawTouchY: number = 0
+  private _touchInitialized: boolean = false
 
   get touchX(): number { return this._touchX }
   get touchY(): number { return this._touchY }
@@ -64,19 +67,40 @@ export class InputManager {
   private onTouchStart = (e: TouchEvent) => {
     e.preventDefault()
     const pos = this.getCanvasPos(e.touches[0])
+    // Initialize both raw and smoothed to finger position on first touch
+    this._rawTouchX = pos.x
+    this._rawTouchY = pos.y
     this._touchX = pos.x
     this._touchY = pos.y
+    this._touchInitialized = true
     this._isTouching = true
   }
 
   private onTouchMove = (e: TouchEvent) => {
     e.preventDefault()
     const pos = this.getCanvasPos(e.touches[0])
-    this._touchX = pos.x
-    this._touchY = pos.y
+    this._rawTouchX = pos.x
+    this._rawTouchY = pos.y
   }
 
   private onTouchEnd = () => {
     this._isTouching = false
+    this._touchInitialized = false
+  }
+
+  // Called each frame by the engine to apply EMA smoothing
+  updateTouchFilter(): void {
+    if (!this._isTouching) return
+    // EMA factor: 0.35 = heavy smoothing, kills sensor jitter
+    // while still responsive enough for deliberate finger movement
+    const alpha = 0.35
+    if (!this._touchInitialized) {
+      this._touchX = this._rawTouchX
+      this._touchY = this._rawTouchY
+      this._touchInitialized = true
+    } else {
+      this._touchX += (this._rawTouchX - this._touchX) * alpha
+      this._touchY += (this._rawTouchY - this._touchY) * alpha
+    }
   }
 }

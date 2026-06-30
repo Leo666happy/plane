@@ -41,28 +41,16 @@ export function updatePlayer(
 
   if (input.isTouching) {
     // Touch control: plane follows finger smoothly
+    // Input already EMA-smoothed by InputManager, no extra filtering needed
     const targetX = input.touchX
     const targetY = input.touchY - 100 // offset above finger
     const diffX = targetX - player.x
     const diffY = targetY - player.y
 
-    // Dead zone: ignore tiny movements (< 3px) to prevent micro-jitter
-    if (Math.abs(diffX) < 3 && Math.abs(diffY) < 3) {
-      dx = 0
-      dy = 0
-    } else {
-      // Smooth approach: move faster when far, slower when close
-      const approachSpeed = 6
-      dx = diffX * approachSpeed / player.speed
-      dy = diffY * approachSpeed / player.speed
-      // Clamp to avoid overshoot jitter
-      const maxInput = 1.0
-      const len = Math.sqrt(dx * dx + dy * dy)
-      if (len > maxInput) {
-        dx = dx / len * maxInput
-        dy = dy / len * maxInput
-      }
-    }
+    // Proportional approach: fast when far, precise when near
+    const approachSpeed = 5
+    dx = Math.max(-1.0, Math.min(1.0, diffX * approachSpeed / player.speed))
+    dy = Math.max(-1.0, Math.min(1.0, diffY * approachSpeed / player.speed))
   } else {
     // Keyboard control
     if (input.isPressed('ArrowLeft') || input.isPressed('a')) dx -= 1
