@@ -40,17 +40,10 @@ export function updatePlayer(
   let dy = 0
 
   if (input.isTouching) {
-    // Touch control: plane follows finger smoothly
-    // Input already EMA-smoothed by InputManager, no extra filtering needed
-    const targetX = input.touchX
-    const targetY = input.touchY - 100 // offset above finger
-    const diffX = targetX - player.x
-    const diffY = targetY - player.y
-
-    // Proportional approach: fast when far, precise when near
-    const approachSpeed = 5
-    dx = Math.max(-1.0, Math.min(1.0, diffX * approachSpeed / player.speed))
-    dy = Math.max(-1.0, Math.min(1.0, diffY * approachSpeed / player.speed))
+    // Touch control: relative delta — plane moves same distance as finger
+    const delta = input.consumeTouchDelta()
+    player.x += delta.dx
+    player.y += delta.dy
   } else {
     // Keyboard control
     if (input.isPressed('ArrowLeft') || input.isPressed('a')) dx -= 1
