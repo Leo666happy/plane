@@ -32,6 +32,8 @@ export function useGameBridge(): GameBridgeState {
       maxHp.value = mh
     },
     onPowerUpCollected: (type: string) => {
+      // heal is instant, don't show an icon
+      if (type === 'heal') return
       activePowerUps.value = [...activePowerUps.value.filter(t => t !== type), type]
     },
     onPowerUpExpired: (type: string) => {

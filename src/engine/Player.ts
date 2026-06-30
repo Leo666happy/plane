@@ -40,14 +40,29 @@ export function updatePlayer(
   let dy = 0
 
   if (input.isTouching) {
-    // Touch control: plane follows finger horizontally,
-    // stays above finger vertically so finger doesn't cover the plane
+    // Touch control: plane follows finger smoothly
     const targetX = input.touchX
     const targetY = input.touchY - 100 // offset above finger
-    const lerpSpeed = 8 // smooth follow
+    const diffX = targetX - player.x
+    const diffY = targetY - player.y
 
-    dx = (targetX - player.x) * lerpSpeed / player.speed
-    dy = (targetY - player.y) * lerpSpeed / player.speed
+    // Dead zone: ignore tiny movements (< 3px) to prevent micro-jitter
+    if (Math.abs(diffX) < 3 && Math.abs(diffY) < 3) {
+      dx = 0
+      dy = 0
+    } else {
+      // Smooth approach: move faster when far, slower when close
+      const approachSpeed = 6
+      dx = diffX * approachSpeed / player.speed
+      dy = diffY * approachSpeed / player.speed
+      // Clamp to avoid overshoot jitter
+      const maxInput = 1.0
+      const len = Math.sqrt(dx * dx + dy * dy)
+      if (len > maxInput) {
+        dx = dx / len * maxInput
+        dy = dy / len * maxInput
+      }
+    }
   } else {
     // Keyboard control
     if (input.isPressed('ArrowLeft') || input.isPressed('a')) dx -= 1
