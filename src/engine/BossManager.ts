@@ -26,8 +26,8 @@ export class BossManager {
       active: true,
       vx: 0,
       vy: 0,
-      hp: Math.ceil(300 * bossNumber * difficulty),
-      maxHp: Math.ceil(300 * bossNumber * difficulty),
+      hp: Math.ceil(600 * bossNumber * difficulty),
+      maxHp: Math.ceil(600 * bossNumber * difficulty),
       phase: 0,
       attackTimer: 1.5, // first attack after 1.5s
       attackCooldown: 2.5,
@@ -149,7 +149,7 @@ export class BossManager {
     }
 
     // --- Normal attack cycle ---
-    const phaseSpeedMult = boss.phase === 0 ? 1.5 : boss.phase === 1 ? 1.3 : 2.0
+    const phaseSpeedMult = boss.phase === 0 ? 3.0 : boss.phase === 1 ? 1.3 : 2.0
     boss.attackTimer -= dt * phaseSpeedMult
 
     if (boss.attackTimer <= 0) {
