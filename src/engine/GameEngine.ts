@@ -285,6 +285,7 @@ export class GameEngine {
         if (!bullet.active) continue
         if (circleCollision(bullet, this.player)) {
           bullet.active = false
+          const hadShield = this.player.shieldActive
           const tookDamage = playerTakeDamage(this.player, bullet.damage)
           if (tookDamage) {
             this.particles.smokePuff(this.player.x, this.player.y)
@@ -299,6 +300,10 @@ export class GameEngine {
               this.callbacks.onGameOver(this.score)
               return
             }
+          } else if (hadShield && !this.player.shieldActive) {
+            // Shield just broke
+            this.callbacks.onPowerUpExpired('shield')
+            this.particles.sparkTrail(this.player.x, this.player.y)
           } else if (this.player.shieldActive) {
             this.particles.sparkTrail(this.player.x, this.player.y)
           }
@@ -312,6 +317,7 @@ export class GameEngine {
         if (!enemy.active) continue
         if (circleCollision(enemy, this.player)) {
           const damage = enemy.enemyType === 'large' ? 20 : 10
+          const hadShield = this.player.shieldActive
           const tookDamage = playerTakeDamage(this.player, damage)
           enemy.hp -= 15
           if (enemy.hp <= 0) {
@@ -333,6 +339,11 @@ export class GameEngine {
               this.callbacks.onGameOver(this.score)
               return
             }
+          } else if (hadShield && !this.player.shieldActive) {
+            this.callbacks.onPowerUpExpired('shield')
+            this.particles.sparkTrail(this.player.x, this.player.y)
+          } else if (this.player.shieldActive) {
+            this.particles.sparkTrail(this.player.x, this.player.y)
           }
         }
       }
