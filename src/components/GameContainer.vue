@@ -13,7 +13,7 @@
           @update:hp="onHpUpdate"
           @powerup-collected="onPowerUpCollected"
           @powerup-expired="onPowerUpExpired"
-          @boss-appear="onBossAppear"
+          @boss-appehar="onBossAppear"
           @boss-hp-change="onBossHpChange"
           @boss-defeat="onBossDefeat"
           @phase-change="onPhaseChange"
@@ -104,6 +104,7 @@ function onHpUpdate(h: number, mh: number) {
 }
 
 function onPowerUpCollected(type: string) {
+  if (type === 'heal') return // instant effect, no icon
   activePowerUps.value = [...activePowerUps.value, type]
 }
 
